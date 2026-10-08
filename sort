@@ -1,0 +1,399 @@
+Missão 1 — Implementação do Quick Sort em Python
+
+1. Objetivo da atividade
+
+O objetivo é implementar o algoritmo de ordenação Quick Sort para ordenar um vetor contendo 100.000 números aleatórios.
+
+Além da ordenação, precisamos:
+
+- Executar o algoritmo 3 vezes.
+- Medir o tempo de cada execução.
+- Calcular a média dos tempos.
+- Analisar o desempenho do algoritmo.
+
+Para isso, utilizaremos Python e as bibliotecas "random" e "time".
+
+---
+
+2. Importação das bibliotecas
+
+Primeiro, precisamos importar duas bibliotecas:
+
+import random
+import time
+
+Para que serve cada uma?
+
+- "random": gera números aleatórios para preencher nosso vetor e selecionar os pivôs.
+- "time": permite medir quanto tempo o algoritmo demora para ordenar os números.
+
+A função "time.perf_counter()" será utilizada porque oferece um contador de alta precisão para medir intervalos de tempo.
+
+---
+
+3. Entendendo o Quick Sort
+
+O Quick Sort é um algoritmo de ordenação que utiliza a estratégia de dividir para conquistar.
+
+Seu funcionamento consiste em:
+
+1. Escolher um elemento do vetor chamado pivô.
+2. Reorganizar o vetor, colocando os valores menores ou iguais ao pivô à esquerda e os maiores à direita.
+3. Repetir o procedimento nas partes formadas.
+4. Continuar até que todos os elementos estejam ordenados.
+
+Exemplo
+
+Considere o vetor:
+
+[8, 3, 7, 4, 9, 2, 5]
+
+Escolhendo o número "5" como pivô, após o particionamento podemos obter:
+
+[3, 4, 2] [5] [8, 7, 9]
+
+Agora temos duas partes que ainda precisam ser ordenadas:
+
+Esquerda: [3, 4, 2]
+Direita:  [8, 7, 9]
+
+Aplicando o mesmo processo, chegamos ao resultado:
+
+[2, 3, 4, 5, 7, 8, 9]
+
+---
+
+4. Criando a função de particionamento
+
+A primeira função que vamos implementar é "particionar()".
+
+Ela será responsável por selecionar o pivô e reorganizar os elementos.
+
+def particionar(vetor, inicio, fim):
+    indice = random.randint(inicio, fim)
+
+    vetor[indice], vetor[fim] = vetor[fim], vetor[indice]
+
+    pivo = vetor[fim]
+    i = inicio - 1
+
+    for j in range(inicio, fim):
+        if vetor[j] <= pivo:
+            i += 1
+            vetor[i], vetor[j] = vetor[j], vetor[i]
+
+    vetor[i + 1], vetor[fim] = vetor[fim], vetor[i + 1]
+
+    return i + 1
+
+Explicação passo a passo
+
+Passo 1 — Escolher um pivô aleatório
+
+indice = random.randint(inicio, fim)
+
+Selecionamos uma posição aleatória entre o início e o fim da parte do vetor que estamos ordenando.
+
+Isso ajuda a diminuir a probabilidade de ocorrerem divisões muito desequilibradas.
+
+Passo 2 — Mover o pivô para o final
+
+vetor[indice], vetor[fim] = vetor[fim], vetor[indice]
+
+Trocamos o elemento escolhido com o último elemento da partição.
+
+Assim, fica mais fácil organizar os outros valores.
+
+Passo 3 — Guardar o valor do pivô
+
+pivo = vetor[fim]
+i = inicio - 1
+
+A variável "pivo" armazena o número escolhido.
+
+A variável "i" controla a posição onde termina a região dos elementos menores ou iguais ao pivô.
+
+Passo 4 — Comparar os elementos
+
+for j in range(inicio, fim):
+    if vetor[j] <= pivo:
+        i += 1
+        vetor[i], vetor[j] = vetor[j], vetor[i]
+
+Percorremos os elementos da partição.
+
+Quando encontramos um número menor ou igual ao pivô, colocamos esse número na região à esquerda.
+
+Passo 5 — Colocar o pivô na posição correta
+
+vetor[i + 1], vetor[fim] = vetor[fim], vetor[i + 1]
+
+Após as comparações, colocamos o pivô entre os valores menores ou iguais e os valores maiores.
+
+Passo 6 — Retornar a posição do pivô
+
+return i + 1
+
+Retornamos a posição definitiva do pivô, que será utilizada pela função Quick Sort.
+
+---
+
+5. Implementando a função Quick Sort
+
+Agora vamos criar a função principal de ordenação.
+
+def quicksort(vetor, inicio, fim):
+    while inicio < fim:
+        pivo = particionar(vetor, inicio, fim)
+
+        if pivo - inicio < fim - pivo:
+            quicksort(vetor, inicio, pivo - 1)
+            inicio = pivo + 1
+        else:
+            quicksort(vetor, pivo + 1, fim)
+            fim = pivo - 1
+
+Como essa função funciona?
+
+Passo 1 — Verificar se existem elementos para ordenar
+
+while inicio < fim:
+
+Enquanto a partição tiver pelo menos dois elementos, continuamos a ordenação.
+
+Quando houver apenas um elemento ou nenhum, não precisamos fazer mais nada.
+
+Passo 2 — Particionar o vetor
+
+pivo = particionar(vetor, inicio, fim)
+
+Chamamos a função criada anteriormente.
+
+Ela reorganiza os elementos e retorna a posição definitiva do pivô.
+
+Passo 3 — Ordenar as partições
+
+if pivo - inicio < fim - pivo:
+    quicksort(vetor, inicio, pivo - 1)
+    inicio = pivo + 1
+else:
+    quicksort(vetor, pivo + 1, fim)
+    fim = pivo - 1
+
+Aqui utilizamos uma otimização: processamos recursivamente a menor partição e continuamos com a maior usando o "while".
+
+Isso reduz a profundidade da recursão, algo importante porque estamos trabalhando com 100.000 elementos.
+
+---
+
+6. Criando o vetor de 100.000 posições
+
+Agora precisamos gerar os números aleatórios.
+
+vetor = [
+    random.randint(1, 100000)
+    for _ in range(100000)
+]
+
+Entendendo o código
+
+- "random.randint(1, 100000)" gera um número aleatório entre 1 e 100.000.
+- "range(100000)" faz o processo acontecer 100.000 vezes.
+- A compreensão de lista "[]" armazena todos os números gerados.
+
+O vetor terá exatamente 100.000 posições, mas poderá conter números repetidos.
+
+---
+
+7. Medindo o tempo de execução
+
+Para medir o desempenho, utilizaremos:
+
+inicio = time.perf_counter()
+
+quicksort(vetor, 0, len(vetor) - 1)
+
+fim = time.perf_counter()
+
+tempo = fim - inicio
+
+Explicação
+
+1. "inicio" registra o instante anterior à ordenação.
+2. "quicksort()" executa o algoritmo.
+3. "fim" registra o instante após a ordenação.
+4. A diferença "fim - inicio" representa o tempo gasto em segundos.
+
+A geração dos números aleatórios não entra nessa medição.
+
+---
+
+8. Executando o algoritmo três vezes
+
+A atividade exige três execuções.
+
+Para isso, utilizaremos um laço "for".
+
+tempos = []
+
+for i in range(3):
+    vetor = [
+        random.randint(1, 100000)
+        for _ in range(100000)
+    ]
+
+    inicio = time.perf_counter()
+
+    quicksort(vetor, 0, len(vetor) - 1)
+
+    fim = time.perf_counter()
+
+    tempo = fim - inicio
+    tempos.append(tempo)
+
+    print(f"Execução {i + 1}: {tempo:.6f} segundos")
+
+A cada repetição:
+
+1. Criamos um novo vetor aleatório.
+2. Executamos o Quick Sort.
+3. Medimos o tempo.
+4. Armazenamos o resultado na lista "tempos".
+5. Mostramos o tempo da execução.
+
+---
+
+9. Calculando a média
+
+Depois das três execuções, calculamos a média aritmética:
+
+[
+\text{Média}=\frac{T_1+T_2+T_3}{3}
+]
+
+Em Python:
+
+media = sum(tempos) / len(tempos)
+
+print(f"\nTempo médio: {media:.6f} segundos")
+
+A função "sum()" soma todos os tempos registrados.
+
+A função "len()" retorna a quantidade de execuções, que será 3.
+
+Exemplo de resultado
+
+Os valores abaixo são apenas ilustrativos:
+
+Execução 1: 0.182345 segundos
+Execução 2: 0.190123 segundos
+Execução 3: 0.185678 segundos
+
+Tempo médio: 0.186049 segundos
+
+Os resultados reais dependem do desempenho do computador e dos valores gerados.
+
+---
+
+10. Código completo
+
+Juntando todas as etapas, temos:
+
+import random
+import time
+
+
+def particionar(vetor, inicio, fim):
+    indice = random.randint(inicio, fim)
+    vetor[indice], vetor[fim] = vetor[fim], vetor[indice]
+
+    pivo = vetor[fim]
+    i = inicio - 1
+
+    for j in range(inicio, fim):
+        if vetor[j] <= pivo:
+            i += 1
+            vetor[i], vetor[j] = vetor[j], vetor[i]
+
+    vetor[i + 1], vetor[fim] = vetor[fim], vetor[i + 1]
+
+    return i + 1
+
+
+def quicksort(vetor, inicio, fim):
+    while inicio < fim:
+        pivo = particionar(vetor, inicio, fim)
+
+        if pivo - inicio < fim - pivo:
+            quicksort(vetor, inicio, pivo - 1)
+            inicio = pivo + 1
+        else:
+            quicksort(vetor, pivo + 1, fim)
+            fim = pivo - 1
+
+
+tempos = []
+
+for i in range(3):
+    vetor = [
+        random.randint(1, 100000)
+        for _ in range(100000)
+    ]
+
+    inicio = time.perf_counter()
+
+    quicksort(vetor, 0, len(vetor) - 1)
+
+    fim = time.perf_counter()
+
+    tempo = fim - inicio
+    tempos.append(tempo)
+
+    print(f"Execução {i + 1}: {tempo:.6f} segundos")
+
+    # Confere se o vetor está ordenado
+    assert all(
+        vetor[j] <= vetor[j + 1]
+        for j in range(len(vetor) - 1)
+    )
+
+media = sum(tempos) / len(tempos)
+
+print(f"\nTempo médio: {media:.6f} segundos")
+
+Adicionamos uma verificação com "assert" para confirmar que o vetor foi ordenado corretamente. Essa verificação acontece depois da medição e não interfere no tempo registrado.
+
+---
+
+11. Complexidade do Quick Sort
+
+A complexidade de tempo do algoritmo depende da forma como o vetor é dividido.
+
+Caso| Complexidade
+Melhor caso| O(n log n)
+Caso médio| O(n log n)
+Pior caso| O(n²)
+
+Melhor caso: o pivô divide o vetor em duas partes aproximadamente iguais.
+
+Caso médio: as divisões são razoavelmente equilibradas, permitindo boa eficiência.
+
+Pior caso: o pivô produz divisões muito desequilibradas repetidamente, aumentando a quantidade de operações.
+
+A escolha aleatória do pivô ajuda a reduzir a probabilidade de ocorrer o pior caso, mas não elimina essa possibilidade.
+
+A implementação utiliza memória auxiliar para a recursão e organiza os elementos diretamente no vetor original.
+
+---
+
+12. Conclusão
+
+Nesta atividade, implementamos o algoritmo Quick Sort em Python para ordenar um vetor de 100.000 posições preenchido com números aleatórios.
+
+Utilizamos a biblioteca "random" para gerar os valores e a biblioteca "time" para medir o tempo de execução.
+
+O algoritmo foi preparado para executar três vezes e calcular a média dos tempos, permitindo observar seu desempenho.
+
+O Quick Sort utiliza a estratégia de dividir para conquistar, separando o vetor em partições menores até que todos os elementos estejam ordenados.
+
+Com os resultados das execuções, podemos avaliar o tempo necessário para ordenar uma quantidade relativamente grande de números e relacionar esse comportamento à complexidade do algoritmo.
